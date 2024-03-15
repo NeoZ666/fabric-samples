@@ -124,7 +124,15 @@ func main() {
 		log.Fatalf("Failed to evaluate transaction: %v", err)
 	}
 	log.Println(string(result))
+	
+	log.Println("--> Evaluate Transaction: ReadAssetByColorOwner, function returns corresponding assets with color and owner")
+	result, err = contract.EvaluateTransaction("ReadAssetByColorOwner", "yellow")
+	if err != nil {
+		log.Fatalf("Failed to evaluate transaction: %v", err)
+	}
+	log.Println(string(result))
 	log.Println("============ application-golang ends ============")
+	
 }
 
 func populateWallet(wallet *gateway.Wallet) error {

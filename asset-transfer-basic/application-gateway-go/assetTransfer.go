@@ -80,6 +80,7 @@ func main() {
 	getAllAssets(contract)
 	createAsset(contract)
 	readAssetByID(contract)
+	readAssetByOwnerColor(contract)
 	transferAssetAsync(contract)
 	exampleErrorHandling(contract)
 }
@@ -205,6 +206,18 @@ func readAssetByID(contract *client.Contract) {
 	fmt.Printf("\n--> Evaluate Transaction: ReadAsset, function returns asset attributes\n")
 
 	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", assetId)
+	if err != nil {
+		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
+	}
+	result := formatJSON(evaluateResult)
+
+	fmt.Printf("*** Result:%s\n", result)
+}
+
+func readAssetByOwnerColor(contract *client.Contract) {
+	fmt.Printf("\n--> Evaluate Transaction: ReadAssetByColor&Owner, function returns corresponding assets with color and owner\n")
+
+	evaluateResult, err := contract.EvaluateTransaction("ReadAssetByColorOwner", "yellow")
 	if err != nil {
 		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
 	}

@@ -93,6 +93,54 @@ func (s *SmartContract) ReadAsset(ctx contractapi.TransactionContextInterface, i
 	return &asset, nil
 }
 
+// GetByNonPrimaryKey queries assets based on non-primary key (e.g., Color and Owner) using CouchDB Rich Queries
+func (s *SmartContract) ReadAssetByColorOwner(ctx contractapi.TransactionContextInterface, color string) ([]*Asset, error) {
+	queryString := fmt.Sprintf(`{
+		"selector": {
+			"%s": "%s"
+		}
+	}`, color)
+
+	resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	var assets []*Asset
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+
+		var asset Asset
+		err = json.Unmarshal(queryResponse.Value, &asset)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, &asset)
+	}
+
+	return assets, nil
+
+	// assetJSON, err := ctx.GetStub().GetState(color)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to read from world state: %v", err)
+	// }
+	// if assetJSON == nil {
+	// 	return nil, fmt.Errorf("the asset %s does not exist", color)
+	// }
+
+	// var asset Asset
+	// err = json.Unmarshal(assetJSON, &asset)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return &asset, nil
+}
+
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SmartContract) UpdateAsset(ctx contractapi.TransactionContextInterface, id string, color string, size int, owner string, appraisedValue int) error {
 	exists, err := s.AssetExists(ctx, id)
